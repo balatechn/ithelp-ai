@@ -4,6 +4,7 @@ export interface Message {
   content: string;
   timestamp: Date;
   attachments?: Attachment[];
+  errorMsg?: { icon: string; title: string; desc: string };
 }
 
 export interface Conversation {

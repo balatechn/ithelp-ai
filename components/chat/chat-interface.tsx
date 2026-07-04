@@ -3,14 +3,27 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  Send, Paperclip, Mic, MicOff, Copy, ThumbsUp, ThumbsDown,
-  RotateCcw, Share2, Download, Ticket, ArrowUp, Bot, User,
-  Sparkles, Code2, FileText, AlertTriangle
+  Paperclip, Mic, MicOff, Copy, ThumbsUp, ThumbsDown,
+  RotateCcw, Ticket, ArrowUp, Bot,
+  Sparkles, Code2, FileText, AlertTriangle, Key, Wifi, Settings
 } from "lucide-react";
 import { cn, generateId, formatRelativeTime } from "@/lib/utils";
 import { Message } from "@/types";
 import { MarkdownRenderer } from "./markdown-renderer";
 import { toast } from "@/components/ui/toaster";
+
+function getFriendlyError(msg: string): { icon: string; title: string; desc: string } {
+  const m = msg.toLowerCase();
+  if (m.includes("api key") || m.includes("authentication") || m.includes("401") || m.includes("x-api-key"))
+    return { icon: "key", title: "API key not configured", desc: "Add your Anthropic API key in Settings → AI Configuration to enable AI chat." };
+  if (m.includes("rate limit") || m.includes("429"))
+    return { icon: "clock", title: "Rate limit reached", desc: "Too many requests. Wait a moment and try again." };
+  if (m.includes("network") || m.includes("fetch") || m.includes("failed to fetch"))
+    return { icon: "wifi", title: "Connection error", desc: "Could not reach the AI service. Check your network and try again." };
+  if (m.includes("timeout"))
+    return { icon: "clock", title: "Request timed out", desc: "The AI took too long to respond. Try a shorter message." };
+  return { icon: "alert", title: "Something went wrong", desc: msg.length < 120 ? msg : "An unexpected error occurred. Please try again." };
+}
 
 const SUGGESTED_PROMPTS = [
   { icon: AlertTriangle, text: "My computer shows Blue Screen of Death", category: "Windows" },
@@ -128,11 +141,12 @@ export function ChatInterface() {
       }
     } catch (error: unknown) {
       if ((error as Error)?.name !== "AbortError") {
-        const msg = (error as Error)?.message || "Unknown error";
+        const raw = (error as Error)?.message || "Unknown error";
+        const friendly = getFriendlyError(raw);
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantId
-              ? { ...m, content: msg }
+              ? { ...m, content: "", errorMsg: friendly }
               : m
           )
         );
@@ -305,21 +319,40 @@ function MessageBubble({
         <Bot className="w-4 h-4 text-white" />
       </div>
       <div className="flex-1 max-w-[90%]">
-        <div className="glass-card rounded-2xl rounded-tl-sm px-5 py-4">
-          {message.content ? (
-            <div className="ai-prose text-sm text-gray-800 dark:text-gray-200">
-              <MarkdownRenderer content={message.content} />
+        {message.errorMsg ? (
+          <div className="flex items-start gap-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl rounded-tl-sm px-4 py-3.5">
+            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0">
+              {message.errorMsg.icon === "key" && <Key className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+              {message.errorMsg.icon === "wifi" && <Wifi className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
+              {(message.errorMsg.icon === "clock" || message.errorMsg.icon === "alert") && <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />}
             </div>
-          ) : (
-            <div className="flex items-center gap-1 py-1">
-              <span className="typing-dot" />
-              <span className="typing-dot" />
-              <span className="typing-dot" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">{message.errorMsg.title}</p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5 leading-relaxed">{message.errorMsg.desc}</p>
+              {message.errorMsg.icon === "key" && (
+                <a href="/dashboard/settings" className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-amber-200 underline">
+                  <Settings className="w-3 h-3" /> Go to Settings
+                </a>
+              )}
             </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="glass-card rounded-2xl rounded-tl-sm px-5 py-4">
+            {message.content ? (
+              <div className="ai-prose text-sm text-gray-800 dark:text-gray-200">
+                <MarkdownRenderer content={message.content} />
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 py-1">
+                <span className="typing-dot" />
+                <span className="typing-dot" />
+                <span className="typing-dot" />
+              </div>
+            )}
+          </div>
+        )}
 
-        {message.content && (
+        {message.content && !message.errorMsg && (
           <div className="flex items-center gap-2 mt-2 px-1">
             <p className="text-xs text-gray-400 dark:text-gray-500">{formatRelativeTime(message.timestamp)}</p>
             <div className="flex items-center gap-1 ml-2">
