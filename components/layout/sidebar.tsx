@@ -5,13 +5,13 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, MessageSquare, Ticket, Monitor, Users,
   BookOpen, BarChart2, Settings, Bot, ChevronLeft, ChevronRight,
-  Zap, Wifi
+  Zap, Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-  { icon: MessageSquare, label: "AI Chat", href: "/dashboard/chat" },
+  { icon: MessageSquare, label: "AI Chat", href: "/dashboard/chat", dot: true },
   { icon: Ticket, label: "Tickets", href: "/dashboard/tickets" },
   { icon: Monitor, label: "Devices", href: "/dashboard/devices" },
   { icon: Users, label: "Users", href: "/dashboard/users" },
@@ -21,89 +21,172 @@ const NAV_ITEMS = [
   { icon: Settings, label: "Settings", href: "/dashboard/settings" },
 ];
 
+const S = {
+  sidebar: {
+    background: "#0f172a",
+    borderRight: "1px solid rgba(255,255,255,0.06)",
+  } as React.CSSProperties,
+  logoRow: {
+    height: 64, display: "flex", alignItems: "center", padding: "0 16px",
+    borderBottom: "1px solid rgba(255,255,255,0.06)", flexShrink: 0, gap: 10,
+  } as React.CSSProperties,
+  logoIcon: {
+    width: 36, height: 36, borderRadius: 10,
+    background: "linear-gradient(135deg,#3b82f6,#6366f1)",
+    display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+  } as React.CSSProperties,
+  logoText: { fontWeight: 700, fontSize: 18, color: "#f8fafc", letterSpacing: "-0.3px" } as React.CSSProperties,
+  collapseBtn: {
+    marginLeft: "auto", width: 28, height: 28, borderRadius: 8,
+    background: "rgba(255,255,255,0.06)", border: "none", cursor: "pointer",
+    display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b", flexShrink: 0,
+  } as React.CSSProperties,
+  nav: {
+    flex: 1, overflowY: "auto", padding: "12px 10px",
+    display: "flex", flexDirection: "column", gap: 2,
+  } as React.CSSProperties,
+  navItem: {
+    display: "flex", alignItems: "center", gap: 12, padding: "10px 12px",
+    borderRadius: 10, fontSize: 14, fontWeight: 500, cursor: "pointer",
+    background: "transparent", border: "none", outline: "none",
+    width: "100%", textAlign: "left", color: "#94a3b8",
+    transition: "all 0.15s", whiteSpace: "nowrap",
+  } as React.CSSProperties,
+  navItemActive: {
+    background: "#3b82f6", color: "#ffffff",
+    boxShadow: "0 4px 12px rgba(59,130,246,0.4)",
+  } as React.CSSProperties,
+  dot: {
+    width: 6, height: 6, borderRadius: "50%", background: "#22c55e",
+    marginLeft: "auto", flexShrink: 0,
+  } as React.CSSProperties,
+  aiCard: {
+    margin: "0 10px 12px", borderRadius: 12,
+    background: "linear-gradient(135deg,#1e3a5f,#1e1b4b)",
+    border: "1px solid rgba(99,102,241,0.3)", padding: "16px 14px", flexShrink: 0,
+  } as React.CSSProperties,
+  aiCardHeader: { display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 10 } as React.CSSProperties,
+  aiCardBtn: {
+    width: "100%", padding: "8px 12px", borderRadius: 8,
+    background: "#3b82f6", border: "none", cursor: "pointer",
+    color: "white", fontSize: 13, fontWeight: 600,
+    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+  } as React.CSSProperties,
+  userRow: {
+    borderTop: "1px solid rgba(255,255,255,0.06)", padding: "12px 10px", flexShrink: 0,
+  } as React.CSSProperties,
+  userInner: {
+    display: "flex", alignItems: "center", gap: 10, padding: 8,
+    borderRadius: 10, cursor: "pointer",
+  } as React.CSSProperties,
+  avatar: {
+    width: 32, height: 32, borderRadius: "50%",
+    background: "linear-gradient(135deg,#3b82f6,#6366f1)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    color: "white", fontSize: 12, fontWeight: 700, flexShrink: 0,
+  } as React.CSSProperties,
+} as const;
+
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
   return (
-    <aside className={cn(
-      "sticky top-0 h-screen flex-shrink-0 flex flex-col",
-      "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800",
-      "transition-all duration-300 shadow-xl shadow-gray-200/50 dark:shadow-gray-900/50",
-      collapsed ? "w-16" : "w-64"
-    )}>
+    <aside
+      style={{
+        ...S.sidebar,
+        width: collapsed ? 64 : 240,
+        transition: "width 0.3s",
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        flexShrink: 0,
+        position: "sticky",
+        top: 0,
+      }}
+    >
       {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
-          <Bot className="w-5 h-5 text-white" />
+      <div style={S.logoRow}>
+        <div style={S.logoIcon}>
+          <Bot style={{ width: 20, height: 20, color: "white" }} />
         </div>
         {!collapsed && (
-          <div className="ml-3 overflow-hidden">
-            <div className="font-bold text-gray-900 dark:text-white leading-tight">
-              ITHelp<span className="gradient-text">AI</span>
-            </div>
-            <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium tracking-wide">IT SUPPORT PORTAL</div>
-          </div>
+          <span style={S.logoText}>
+            Help<span style={{ color: "#3b82f6" }}>AI</span>
+          </span>
         )}
+        <button style={S.collapseBtn} onClick={() => setCollapsed(!collapsed)}>
+          {collapsed
+            ? <ChevronRight style={{ width: 14, height: 14 }} />
+            : <ChevronLeft style={{ width: 14, height: 14 }} />}
+        </button>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
+      {/* Nav */}
+      <nav style={S.nav}>
         {NAV_ITEMS.map((item) => {
-          const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          const active = pathname === item.href ||
+            (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
             <button
               key={item.href}
               onClick={() => router.push(item.href)}
-              className={cn("sidebar-item", active && "active")}
               title={collapsed ? item.label : undefined}
+              style={{
+                ...S.navItem,
+                ...(active ? S.navItemActive : {}),
+              }}
+              onMouseEnter={(e) => {
+                if (!active) {
+                  (e.currentTarget as HTMLButtonElement).style.background = "rgba(255,255,255,0.06)";
+                  (e.currentTarget as HTMLButtonElement).style.color = "#f1f5f9";
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!active) {
+                  (e.currentTarget as HTMLButtonElement).style.background = "transparent";
+                  (e.currentTarget as HTMLButtonElement).style.color = "#94a3b8";
+                }
+              }}
             >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-              {!collapsed && item.label === "AI Chat" && (
-                <span className="ml-auto w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-              )}
+              <item.icon style={{ width: 18, height: 18, flexShrink: 0 }} />
+              {!collapsed && <span style={{ flex: 1 }}>{item.label}</span>}
+              {!collapsed && item.dot && <span style={S.dot} />}
             </button>
           );
         })}
       </nav>
 
-      {/* Bottom section */}
-      <div className="border-t border-gray-200 dark:border-gray-800 p-3 space-y-1">
-        {!collapsed && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
-            <Wifi className="w-4 h-4 text-green-500 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-medium text-green-700 dark:text-green-400">AI Online</div>
-              <div className="text-[10px] text-green-600 dark:text-green-500">Claude · Gemini</div>
+      {/* AI assistant card */}
+      {!collapsed && (
+        <div style={S.aiCard}>
+          <div style={S.aiCardHeader}>
+            <Sparkles style={{ width: 16, height: 16, color: "#818cf8", flexShrink: 0, marginTop: 2 }} />
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#e2e8f0" }}>Need Help?</div>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>Ask our AI Assistant</div>
             </div>
           </div>
-        )}
+          <button style={S.aiCardBtn} onClick={() => router.push("/dashboard/chat")}>
+            <MessageSquare style={{ width: 14, height: 14 }} />
+            Open AI Chat
+          </button>
+        </div>
+      )}
 
-        <div className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-colors",
-          collapsed && "justify-center"
-        )}>
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0 text-white text-xs font-bold">
-            IT
-          </div>
+      {/* User */}
+      <div style={S.userRow}>
+        <div style={S.userInner}>
+          <div style={S.avatar}>IT</div>
           {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 dark:text-white truncate">IT Admin</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400 truncate">admin@company.com</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#f1f5f9", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>IT Admin</div>
+              <div style={{ fontSize: 11, color: "#64748b", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Administrator</div>
             </div>
           )}
         </div>
       </div>
-
-      {/* Collapse button */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shadow-md text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-      >
-        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
-      </button>
     </aside>
   );
 }

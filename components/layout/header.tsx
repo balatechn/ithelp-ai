@@ -1,70 +1,110 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { Search, Bell, Sun, Moon, Command, MessageSquare } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Search, Bell, Moon, Sun, Command, ChevronDown } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
-  "/dashboard/chat": "AI Chat — Senior IT Engineer",
+  "/dashboard/chat": "AI Chat",
   "/dashboard/tickets": "Support Tickets",
   "/dashboard/devices": "Device Inventory",
   "/dashboard/users": "User Management",
   "/dashboard/knowledge": "Knowledge Base",
   "/dashboard/reports": "Reports & Analytics",
+  "/dashboard/automation": "Automation",
   "/dashboard/settings": "Settings",
 };
 
-interface HeaderProps {
-  onCmdK?: () => void;
-}
+interface HeaderProps { onCmdK?: () => void }
 
 export function Header({ onCmdK }: HeaderProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
-  const title = PAGE_TITLES[pathname] || "Dashboard";
+  const isDark = resolvedTheme === "dark";
+
+  const headerBg = isDark ? "#0f172a" : "#ffffff";
+  const borderColor = isDark ? "rgba(255,255,255,0.06)" : "#e5e7eb";
+  const searchBg = isDark ? "rgba(255,255,255,0.05)" : "#f3f4f6";
+  const searchBorder = isDark ? "rgba(255,255,255,0.08)" : "#e5e7eb";
+  const iconColor = isDark ? "#64748b" : "#6b7280";
+  const textPrimary = isDark ? "#f1f5f9" : "#111827";
+  const textSecondary = isDark ? "#64748b" : "#6b7280";
 
   return (
-    <header className="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl sticky top-0 z-30 flex-shrink-0">
-      <h1 className="font-semibold text-lg text-gray-900 dark:text-white">{title}</h1>
+    <header style={{
+      height: 64, display: "flex", alignItems: "center", gap: 16,
+      padding: "0 24px", borderBottom: `1px solid ${borderColor}`,
+      background: headerBg, position: "sticky", top: 0, zIndex: 30, flexShrink: 0,
+    }}>
+      {/* Search bar */}
+      <button
+        onClick={onCmdK}
+        style={{
+          flex: 1, maxWidth: 480, display: "flex", alignItems: "center", gap: 10,
+          padding: "0 14px", height: 40, borderRadius: 10,
+          background: searchBg, border: `1px solid ${searchBorder}`,
+          cursor: "pointer", textAlign: "left",
+        }}
+      >
+        <Search style={{ width: 16, height: 16, color: iconColor, flexShrink: 0 }} />
+        <span style={{ flex: 1, fontSize: 14, color: textSecondary }}>
+          Search tickets, users, devices, articles...
+        </span>
+        <span style={{
+          display: "flex", alignItems: "center", gap: 2,
+          fontSize: 11, color: textSecondary,
+          background: isDark ? "rgba(255,255,255,0.06)" : "#e5e7eb",
+          padding: "2px 6px", borderRadius: 6, fontFamily: "monospace", flexShrink: 0,
+        }}>
+          <Command style={{ width: 10, height: 10 }} />K
+        </span>
+      </button>
 
-      <div className="flex items-center gap-2">
-        {/* Cmd+K trigger */}
-        <button
-          onClick={onCmdK}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-        >
-          <Search className="w-4 h-4" />
-          <span className="hidden sm:inline text-gray-400">Search or ask...</span>
-          <span className="hidden sm:flex items-center gap-0.5 text-[10px] text-gray-400 bg-gray-200 dark:bg-gray-700 px-1.5 py-0.5 rounded font-mono">
-            <Command className="w-2.5 h-2.5" />K
-          </span>
-        </button>
-
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto" }}>
         {/* Notifications */}
-        <button className="relative p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+        <button style={{
+          position: "relative", width: 36, height: 36, borderRadius: 10,
+          background: "transparent", border: "none", cursor: "pointer",
+          display: "flex", alignItems: "center", justifyContent: "center", color: iconColor,
+        }}>
+          <Bell style={{ width: 18, height: 18 }} />
+          <span style={{
+            position: "absolute", top: 6, right: 6, width: 16, height: 16,
+            borderRadius: "50%", background: "#ef4444", color: "white",
+            fontSize: 9, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center",
+          }}>5</span>
         </button>
 
         {/* Theme toggle */}
         <button
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-          className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
-          title="Toggle theme"
+          onClick={() => setTheme(isDark ? "light" : "dark")}
+          style={{
+            width: 36, height: 36, borderRadius: 10,
+            background: "transparent", border: "none", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center", color: iconColor,
+          }}
         >
-          {resolvedTheme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          {isDark ? <Sun style={{ width: 18, height: 18 }} /> : <Moon style={{ width: 18, height: 18 }} />}
         </button>
 
-        {/* Ask AI */}
-        <button
-          onClick={() => router.push("/dashboard/chat")}
-          className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors shadow-lg shadow-blue-500/25"
-        >
-          <MessageSquare className="w-4 h-4" />
-          Ask AI
-        </button>
+        {/* Divider */}
+        <div style={{ width: 1, height: 24, background: borderColor }} />
+
+        {/* User profile */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: "50%",
+            background: "linear-gradient(135deg,#3b82f6,#6366f1)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "white", fontSize: 12, fontWeight: 700, flexShrink: 0,
+          }}>IT</div>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: textPrimary, lineHeight: 1.2 }}>IT Admin</div>
+            <div style={{ fontSize: 11, color: textSecondary, lineHeight: 1.2 }}>Administrator</div>
+          </div>
+          <ChevronDown style={{ width: 14, height: 14, color: iconColor }} />
+        </div>
       </div>
     </header>
   );
