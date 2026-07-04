@@ -85,6 +85,32 @@
     font-weight: 500;
     transition: all 0.2s;
     cursor: pointer;
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    text-align: left;
+    color: #4b5563;
+  }
+  .sidebar-item:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+  }
+  .sidebar-item.active {
+    background-color: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.3);
+  }
+  .dark .sidebar-item {
+    color: #9ca3af;
+  }
+  .dark .sidebar-item:hover {
+    background-color: #1f2937;
+    color: #ffffff;
+  }
+  .dark .sidebar-item.active {
+    background-color: #2563eb;
+    color: #ffffff;
   }
 
   .skeleton {

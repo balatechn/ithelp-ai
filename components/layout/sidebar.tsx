@@ -28,7 +28,7 @@ export function Sidebar() {
 
   return (
     <aside className={cn(
-      "fixed left-0 top-0 h-full z-40 flex flex-col",
+      "sticky top-0 h-screen flex-shrink-0 flex flex-col",
       "bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800",
       "transition-all duration-300 shadow-xl shadow-gray-200/50 dark:shadow-gray-900/50",
       collapsed ? "w-16" : "w-64"
@@ -56,12 +56,7 @@ export function Sidebar() {
             <button
               key={item.href}
               onClick={() => router.push(item.href)}
-              className={cn(
-                "sidebar-item w-full",
-                active
-                  ? "bg-blue-600 text-white shadow-lg shadow-blue-500/25"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
-              )}
+              className={cn("sidebar-item", active && "active")}
               title={collapsed ? item.label : undefined}
             >
               <item.icon className="w-5 h-5 flex-shrink-0" />
